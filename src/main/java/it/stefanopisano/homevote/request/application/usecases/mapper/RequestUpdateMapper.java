@@ -11,7 +11,7 @@ public class RequestUpdateMapper {
         return new RequestUpdate(
                 command.title(),
                 command.description(),
-                command.type().isPresent() ? Optional.of(RequestType.valueOf(RequestType.class, command.type().get())) : Optional.empty(),
+                command.requestType().isPresent() ? Optional.of(RequestType.valueOf(RequestType.class, command.requestType().get())) : Optional.empty(),
                 command.deadline()
         );
     }

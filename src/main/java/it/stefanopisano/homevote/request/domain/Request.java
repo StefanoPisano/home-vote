@@ -1,5 +1,7 @@
 package it.stefanopisano.homevote.request.domain;
 
+import it.stefanopisano.homevote.request.application.usecases.error.RequestException;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,7 +17,7 @@ public class Request {
     private final UUID homeID;
 
     public Request(UUID id, String title, String description, RequestStatus status, RequestType type, LocalDateTime createdAt, LocalDateTime deadline, UUID ownerID, UUID homeID) {
-        if (title == null || title.isBlank()) throw new IllegalArgumentException("Title cannot be empty");
+        this.validate(title, description, type, deadline, homeID, ownerID);
 
         this.id = id;
         this.title = title;
@@ -28,9 +30,36 @@ public class Request {
         this.homeID = homeID;
     }
 
+    private void validate(String title, String description, RequestType type, LocalDateTime deadline, UUID homeID, UUID ownerID) {
+        if (title == null || title.isBlank()) {
+            throw new RequestException("NO_TITLE", "Request title must be not empty.");
+        }
+
+        if (description == null || description.isBlank()) {
+            throw new RequestException("NO_DESCRIPTION", "Request description must be not empty.");
+        }
+
+        if (type == null) {
+            throw new RequestException("NO_DESCRIPTION", "Request description must be not empty.");
+        }
+
+        if (deadline == null) {
+            throw new RequestException("NO_TYPE", "Request deadline must be not empty.");
+        }
+
+        if (homeID == null) {
+            throw new RequestException("NO_HOME", "Request must be associated with a valid home.");
+        }
+
+        if (ownerID == null) {
+            throw new RequestException("NO_OWNER", "Request must be associated to a owner.");
+        }
+
+    }
+
     public void applyUpdates(RequestUpdate requestUpdate) {
         if (this.status != RequestStatus.PENDING) {
-            throw new IllegalArgumentException("This request has already been processed, you can't modify it.");
+            throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
         }
 
         if (requestUpdate.title().isPresent()) {
@@ -52,7 +81,7 @@ public class Request {
 
     public void approve() {
         if (this.status == RequestStatus.CANCELED) {
-            throw new IllegalArgumentException("This request has been canceled, you can't modify it.");
+            throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
         }
 
         this.status = RequestStatus.APPROVED;
@@ -60,7 +89,7 @@ public class Request {
 
     public void reject() {
         if (this.status == RequestStatus.CANCELED) {
-            throw new IllegalArgumentException("This request has been canceled, you can't modify it.");
+            throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
         }
 
         this.status = RequestStatus.REJECTED;
