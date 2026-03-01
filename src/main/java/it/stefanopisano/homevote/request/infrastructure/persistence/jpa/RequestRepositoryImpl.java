@@ -3,6 +3,7 @@ package it.stefanopisano.homevote.request.infrastructure.persistence.jpa;
 import it.stefanopisano.homevote.request.domain.Request;
 import it.stefanopisano.homevote.request.domain.RequestRepository;
 import it.stefanopisano.homevote.request.infrastructure.persistence.jpa.entity.RequestEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -18,6 +19,7 @@ public class RequestRepositoryImpl implements RequestRepository {
     }
 
     @Override
+    @Transactional
     public void save(Request request) {
         final RequestEntity toSave = RequestMapper.toEntity(request);
 
@@ -25,9 +27,23 @@ public class RequestRepositoryImpl implements RequestRepository {
     }
 
     @Override
+    @Transactional
     public Optional<Request> findById(UUID id) {
         final Optional<RequestEntity> found = springDataRequestRepository.findById(id);
 
         return found.map(RequestMapper::toDomain);
+    }
+
+    @Override
+    @Transactional
+    public void update(Request request) {
+        final RequestEntity toUpdate = RequestMapper.toEntity(request);
+
+        springDataRequestRepository.save(toUpdate);
+    }
+
+    @Override
+    public void deleteByID(UUID requestID) {
+        springDataRequestRepository.deleteById(requestID);
     }
 }

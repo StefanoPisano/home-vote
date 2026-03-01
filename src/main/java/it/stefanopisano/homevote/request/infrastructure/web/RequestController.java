@@ -1,9 +1,8 @@
 package it.stefanopisano.homevote.request.infrastructure.web;
 
 import it.stefanopisano.homevote.request.application.usecases.CreateRequestUseCase;
-import it.stefanopisano.homevote.request.infrastructure.web.dto.CreateRequestDto;
+import it.stefanopisano.homevote.request.infrastructure.web.dto.CreateRequestCommand;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +17,7 @@ public class RequestController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public void create(@RequestBody CreateRequestDto createRequestDto) {
+    public void create(@RequestBody CreateRequestCommand createRequestDto) {
         createRequestUseCase.execute(createRequestDto.title(), createRequestDto.description(), createRequestDto.requestType(), createRequestDto.deadline(), createRequestDto.ownerID(), createRequestDto.homeID());
     }
 }

@@ -23,6 +23,7 @@ public class RequestMapper {
                 entity.getId(),
                 entity.getTitle(),
                 entity.getDescription(),
+                entity.getStatus(),
                 entity.getType(),
                 entity.getCreatedAt(),
                 entity.getDeadline(),

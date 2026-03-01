@@ -16,7 +16,7 @@ public class CreateRequestUseCase {
     }
 
     public void execute(String title, String description, String type, LocalDateTime deadline, UUID ownerID, UUID homeId) {
-        Request request = new Request(UUID.randomUUID(), title, description,
+        final Request request = new Request(UUID.randomUUID(), title, description, null,
                 Enum.valueOf(RequestType.class, type),
                 LocalDateTime.now(), deadline, ownerID, homeId);
 
