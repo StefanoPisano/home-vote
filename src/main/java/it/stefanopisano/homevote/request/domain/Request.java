@@ -51,10 +51,18 @@ public class Request {
     }
 
     public void approve() {
+        if (this.status == RequestStatus.CANCELED) {
+            throw new IllegalArgumentException("This request has been canceled, you can't modify it.");
+        }
+
         this.status = RequestStatus.APPROVED;
     }
 
     public void reject() {
+        if (this.status == RequestStatus.CANCELED) {
+            throw new IllegalArgumentException("This request has been canceled, you can't modify it.");
+        }
+
         this.status = RequestStatus.REJECTED;
     }
 
