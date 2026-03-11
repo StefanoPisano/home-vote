@@ -4,6 +4,7 @@ package it.stefanopisano.homevote.request.application.usecases;
 import it.stefanopisano.homevote.request.domain.Request;
 import it.stefanopisano.homevote.request.domain.RequestRepository;
 import it.stefanopisano.homevote.request.domain.RequestType;
+import it.stefanopisano.homevote.request.infrastructure.web.dto.CreateRequestCommand;
 import it.stefanopisano.homevote.request.infrastructure.web.filter.TrackingFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +23,12 @@ public class CreateRequestUseCase {
         this.requestRepository = requestRepository;
     }
 
-    public void execute(String title, String description, String type, LocalDateTime deadline, UUID ownerID, UUID homeId) {
-        log.info("{} || Creating request \"{}\" for homeId={}", MDC.get(TrackingFilter.TRACKING_ID), title, homeId);
+    public void execute(CreateRequestCommand createRequestCommand) {
+        log.info("{} || Creating request \"{}\" for homeId={}", MDC.get(TrackingFilter.TRACKING_ID), createRequestCommand.title(), createRequestCommand.homeID());
 
-        final Request request = new Request(UUID.randomUUID(), title, description, null,
-                Enum.valueOf(RequestType.class, type),
-                LocalDateTime.now(), deadline, ownerID, homeId);
+        final Request request = new Request(UUID.randomUUID(), createRequestCommand.title(), createRequestCommand.description(), null,
+                Enum.valueOf(RequestType.class, createRequestCommand.requestType()),
+                LocalDateTime.now(), createRequestCommand.reasons(), createRequestCommand.ownerID(), createRequestCommand.homeID());
 
         requestRepository.save(request);
     }

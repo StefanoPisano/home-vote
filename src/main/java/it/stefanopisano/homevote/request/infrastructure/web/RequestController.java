@@ -21,8 +21,8 @@ public class RequestController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public void create(@RequestBody CreateRequestCommand createRequestDto) {
-        createRequestUseCase.execute(createRequestDto.title(), createRequestDto.description(), createRequestDto.requestType(), createRequestDto.deadline(), createRequestDto.ownerID(), createRequestDto.homeID());
+    public void create(@RequestBody CreateRequestCommand createRequestCommand) {
+        createRequestUseCase.execute(createRequestCommand);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

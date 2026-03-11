@@ -1,7 +1,8 @@
 package it.stefanopisano.homevote.request.domain;
 
 public enum RequestStatus {
-    PENDING,
+    CREATED,
+    IN_REVISION,
     CANCELED,
     REJECTED,
     APPROVED

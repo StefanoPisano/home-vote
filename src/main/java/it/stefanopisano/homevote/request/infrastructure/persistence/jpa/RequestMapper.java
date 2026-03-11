@@ -12,7 +12,7 @@ public class RequestMapper {
                 request.getType(),
                 request.getStatus(),
                 request.getCreatedAt(),
-                request.getDeadline(),
+                request.getReasons(),
                 request.getOwnerID(),
                 request.getHomeID()
         );
@@ -26,7 +26,7 @@ public class RequestMapper {
                 entity.getStatus(),
                 entity.getType(),
                 entity.getCreatedAt(),
-                entity.getDeadline(),
+                entity.getReasons(),
                 entity.getOwnerID(),
                 entity.getHomeID());
     }

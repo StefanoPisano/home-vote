@@ -3,8 +3,8 @@ package it.stefanopisano.homevote.request.infrastructure.persistence.jpa.entity;
 
 import it.stefanopisano.homevote.request.domain.RequestStatus;
 import it.stefanopisano.homevote.request.domain.RequestType;
-
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,19 +24,19 @@ public class RequestEntity {
     private RequestStatus status;
 
     private LocalDateTime createdAt;
-    private LocalDateTime deadline;
+    private String reasons;
 
     private UUID ownerID;
     private UUID homeID;
 
-    public RequestEntity(UUID id, String title, String description, RequestType type, RequestStatus status, LocalDateTime createdAt, LocalDateTime deadline, UUID ownerID, UUID  homeID) {
+    public RequestEntity(UUID id, String title, String description, RequestType type, RequestStatus status, LocalDateTime createdAt, String reasons, UUID ownerID, UUID homeID) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.type = type;
         this.status = status;
         this.createdAt = createdAt;
-        this.deadline = deadline;
+        this.reasons = reasons;
         this.ownerID = ownerID;
         this.homeID = homeID;
     }
@@ -93,12 +93,12 @@ public class RequestEntity {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getDeadline() {
-        return deadline;
+    public String getReasons() {
+        return reasons;
     }
 
-    public void setDeadline(LocalDateTime deadline) {
-        this.deadline = deadline;
+    public void setDeadline(String reasons) {
+        this.reasons = reasons;
     }
 
     public UUID getOwnerID() {

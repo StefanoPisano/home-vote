@@ -12,25 +12,25 @@ public class Request {
     private RequestType type;
     private RequestStatus status;
     private final LocalDateTime createdAt;
-    private LocalDateTime deadline;
+    private String reasons;
     private final UUID ownerID;
     private final UUID homeID;
 
-    public Request(UUID id, String title, String description, RequestStatus status, RequestType type, LocalDateTime createdAt, LocalDateTime deadline, UUID ownerID, UUID homeID) {
-        this.validate(title, description, type, deadline, homeID, ownerID);
+    public Request(UUID id, String title, String description, RequestStatus status, RequestType type, LocalDateTime createdAt, String reasons, UUID ownerID, UUID homeID) {
+        this.validate(title, description, type, reasons, homeID, ownerID);
 
         this.id = id;
         this.title = title;
         this.description = description;
         this.type = type;
-        this.status = status == null ? RequestStatus.PENDING : status;
+        this.status = status == null ? RequestStatus.CREATED : status;
         this.createdAt = createdAt;
-        this.deadline = deadline;
+        this.reasons = reasons;
         this.ownerID = ownerID;
         this.homeID = homeID;
     }
 
-    private void validate(String title, String description, RequestType type, LocalDateTime deadline, UUID homeID, UUID ownerID) {
+    private void validate(String title, String description, RequestType type, String reasons, UUID homeID, UUID ownerID) {
         if (title == null || title.isBlank()) {
             throw new RequestException("NO_TITLE", "Request title must be not empty.");
         }
@@ -43,8 +43,8 @@ public class Request {
             throw new RequestException("NO_DESCRIPTION", "Request description must be not empty.");
         }
 
-        if (deadline == null) {
-            throw new RequestException("NO_TYPE", "Request deadline must be not empty.");
+        if (reasons == null || reasons.isBlank()) {
+            throw new RequestException("NO_REASONS", "Request reasons must be not empty.");
         }
 
         if (homeID == null) {
@@ -58,7 +58,7 @@ public class Request {
     }
 
     public void applyUpdates(RequestUpdate requestUpdate) {
-        if (this.status != RequestStatus.PENDING) {
+        if (!canBeUpdated()) {
             throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
         }
 
@@ -70,8 +70,8 @@ public class Request {
             this.description = requestUpdate.description().get();
         }
 
-        if (requestUpdate.deadline().isPresent()) {
-            this.deadline = requestUpdate.deadline().get();
+        if (requestUpdate.reasons().isPresent()) {
+            this.reasons = requestUpdate.reasons().get();
         }
 
         if (requestUpdate.type().isPresent()) {
@@ -79,8 +79,16 @@ public class Request {
         }
     }
 
+    public void cancel() {
+        if (!canBeUpdated()) {
+            throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
+        }
+
+        this.status = RequestStatus.CANCELED;
+    }
+
     public void approve() {
-        if (this.status == RequestStatus.CANCELED) {
+        if (!canBeUpdated()) {
             throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
         }
 
@@ -88,11 +96,15 @@ public class Request {
     }
 
     public void reject() {
-        if (this.status == RequestStatus.CANCELED) {
+        if (!canBeUpdated()) {
             throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
         }
 
         this.status = RequestStatus.REJECTED;
+    }
+
+    private boolean canBeUpdated() {
+        return this.status.equals(RequestStatus.CREATED) || this.status.equals(RequestStatus.IN_REVISION);
     }
 
     public RequestStatus getStatus() {
@@ -119,8 +131,8 @@ public class Request {
         return createdAt;
     }
 
-    public LocalDateTime getDeadline() {
-        return deadline;
+    public String getReasons() {
+        return reasons;
     }
 
     public UUID getOwnerID() {
