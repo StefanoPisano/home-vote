@@ -6,6 +6,7 @@ import it.stefanopisano.homevote.request.domain.RequestType;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -13,6 +14,7 @@ import java.util.UUID;
 public class RequestEntity {
 
     @Id
+    @GeneratedValue
     private UUID id;
     private String title;
     private String description;
@@ -29,7 +31,12 @@ public class RequestEntity {
     private UUID ownerID;
     private UUID homeID;
 
-    public RequestEntity(UUID id, String title, String description, RequestType type, RequestStatus status, LocalDateTime createdAt, String reasons, UUID ownerID, UUID homeID) {
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "request")
+    private List<VoteEntity> votes;
+
+    public RequestEntity(UUID id, String title, String description, RequestType type,
+                         RequestStatus status, LocalDateTime createdAt, String reasons,
+                         UUID ownerID, UUID homeID, List<VoteEntity> votes) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -39,6 +46,7 @@ public class RequestEntity {
         this.reasons = reasons;
         this.ownerID = ownerID;
         this.homeID = homeID;
+        this.votes = votes;
     }
 
     public RequestEntity() {
@@ -97,7 +105,7 @@ public class RequestEntity {
         return reasons;
     }
 
-    public void setDeadline(String reasons) {
+    public void setReasons(String reasons) {
         this.reasons = reasons;
     }
 
@@ -115,6 +123,15 @@ public class RequestEntity {
 
     public void setHomeID(UUID homeID) {
         this.homeID = homeID;
+    }
+
+
+    public List<VoteEntity> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(List<VoteEntity> votes) {
+        this.votes = votes;
     }
 
 }

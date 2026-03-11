@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class CreateRequestUseCase {
 
@@ -26,9 +25,9 @@ public class CreateRequestUseCase {
     public void execute(CreateRequestCommand createRequestCommand) {
         log.info("{} || Creating request \"{}\" for homeId={}", MDC.get(TrackingFilter.TRACKING_ID), createRequestCommand.title(), createRequestCommand.homeID());
 
-        final Request request = new Request(UUID.randomUUID(), createRequestCommand.title(), createRequestCommand.description(), null,
+        final Request request = new Request(null, createRequestCommand.title(), createRequestCommand.description(), null,
                 Enum.valueOf(RequestType.class, createRequestCommand.requestType()),
-                LocalDateTime.now(), createRequestCommand.reasons(), createRequestCommand.ownerID(), createRequestCommand.homeID());
+                LocalDateTime.now(), createRequestCommand.reasons(), createRequestCommand.ownerID(), createRequestCommand.homeID(), null);
 
         requestRepository.save(request);
     }

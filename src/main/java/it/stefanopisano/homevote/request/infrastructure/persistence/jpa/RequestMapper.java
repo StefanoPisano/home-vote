@@ -5,7 +5,7 @@ import it.stefanopisano.homevote.request.infrastructure.persistence.jpa.entity.R
 
 public class RequestMapper {
     static RequestEntity toEntity(Request request) {
-        return new RequestEntity(
+        final RequestEntity requestEntity = new RequestEntity(
                 request.getId(),
                 request.getTitle(),
                 request.getDescription(),
@@ -14,12 +14,17 @@ public class RequestMapper {
                 request.getCreatedAt(),
                 request.getReasons(),
                 request.getOwnerID(),
-                request.getHomeID()
+                request.getHomeID(),
+                null
         );
+
+        requestEntity.setVotes(VoteMapper.toEntity(request.getVotes(), requestEntity));
+
+        return requestEntity;
     }
 
     static Request toDomain(RequestEntity entity) {
-        return new Request(
+        final Request request = new Request(
                 entity.getId(),
                 entity.getTitle(),
                 entity.getDescription(),
@@ -28,6 +33,11 @@ public class RequestMapper {
                 entity.getCreatedAt(),
                 entity.getReasons(),
                 entity.getOwnerID(),
-                entity.getHomeID());
+                entity.getHomeID(),
+                null);
+
+        request.setVotes(VoteMapper.toDomain(entity.getVotes()));
+
+        return request;
     }
 }

@@ -5,7 +5,7 @@ CREATE TABLE requests (
                           type VARCHAR(20) NOT NULL,
                           status VARCHAR(20) NOT NULL,
                           created_at TIMESTAMP NOT NULL,
-                          deadline TIMESTAMP,
+                          reasons VARCHAR(300) NOT NULL,
                           ownerID UUID,
                           homeID UUID
 );

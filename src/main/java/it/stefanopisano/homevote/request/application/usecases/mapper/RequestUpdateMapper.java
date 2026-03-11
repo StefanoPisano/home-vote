@@ -12,7 +12,7 @@ public class RequestUpdateMapper {
                 command.title(),
                 command.description(),
                 command.requestType().isPresent() ? Optional.of(RequestType.valueOf(RequestType.class, command.requestType().get())) : Optional.empty(),
-                command.deadline()
+                command.reasons()
         );
     }
 }

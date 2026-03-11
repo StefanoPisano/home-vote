@@ -1,8 +1,12 @@
 package it.stefanopisano.homevote.request.domain;
 
 import it.stefanopisano.homevote.request.application.usecases.error.RequestException;
+import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Request {
@@ -15,8 +19,9 @@ public class Request {
     private String reasons;
     private final UUID ownerID;
     private final UUID homeID;
+    private List<Vote> votes;
 
-    public Request(UUID id, String title, String description, RequestStatus status, RequestType type, LocalDateTime createdAt, String reasons, UUID ownerID, UUID homeID) {
+    public Request(UUID id, String title, String description, RequestStatus status, RequestType type, LocalDateTime createdAt, String reasons, UUID ownerID, UUID homeID, List<Vote> votes) {
         this.validate(title, description, type, reasons, homeID, ownerID);
 
         this.id = id;
@@ -28,6 +33,7 @@ public class Request {
         this.reasons = reasons;
         this.ownerID = ownerID;
         this.homeID = homeID;
+        this.votes = new ArrayList<>();
     }
 
     private void validate(String title, String description, RequestType type, String reasons, UUID homeID, UUID ownerID) {
@@ -57,6 +63,37 @@ public class Request {
 
     }
 
+    public void vote(UUID userID, VoteChoice choice) {
+        Assert.notNull(choice, "Vote Must be not null");
+
+        if (this.status != RequestStatus.VOTING) {
+            throw new RequestException("NOT_VOTING", "Request is not accepting new votes.");
+        }
+
+        if (hasAlreadyVoted(userID)) {
+            updateVote(userID, choice);
+        } else {
+            votes.add(new Vote(null, userID, choice));
+        }
+    }
+
+    private void updateVote(UUID userID, VoteChoice choice) {
+        final Optional<Vote> toBeUpdated = votes.stream()
+                .filter(vote -> vote.getUserID().equals(userID))
+                .findFirst();
+
+        if (toBeUpdated.isEmpty()) {
+            throw new RequestException("NOT_FOUND", "Vote not found.");
+        } else {
+            toBeUpdated.get().updateChoice(choice);
+        }
+    }
+
+    private boolean hasAlreadyVoted(UUID userID) {
+        return votes.stream()
+                .anyMatch(vote -> vote.getUserID().equals(userID));
+    }
+
     public void applyUpdates(RequestUpdate requestUpdate) {
         if (!canBeUpdated()) {
             throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
@@ -79,6 +116,14 @@ public class Request {
         }
     }
 
+    public void startVoting() {
+        if (!canBeUpdated()) {
+            throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
+        }
+
+        this.status = RequestStatus.VOTING;
+    }
+
     public void cancel() {
         if (!canBeUpdated()) {
             throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
@@ -88,8 +133,8 @@ public class Request {
     }
 
     public void approve() {
-        if (!canBeUpdated()) {
-            throw new RequestException("ALREADY_PROCESSED", "This request has already been processed.");
+        if (this.status != RequestStatus.VOTING) {
+            throw new RequestException("NO_VOTES", "Can't approve a request without voting it first.");
         }
 
         this.status = RequestStatus.APPROVED;
@@ -104,7 +149,7 @@ public class Request {
     }
 
     private boolean canBeUpdated() {
-        return this.status.equals(RequestStatus.CREATED) || this.status.equals(RequestStatus.IN_REVISION);
+        return this.status == RequestStatus.CREATED || this.status == RequestStatus.IN_REVISION;
     }
 
     public RequestStatus getStatus() {
@@ -141,5 +186,13 @@ public class Request {
 
     public UUID getHomeID() {
         return homeID;
+    }
+
+    public List<Vote> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(List<Vote> votes) {
+        this.votes = votes;
     }
 }
